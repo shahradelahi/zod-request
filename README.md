@@ -1,2 +1,3 @@
 # zod-request
-Typesafe on HTTP request using Zod
+
+Type-safe on HTTP requests using Zod

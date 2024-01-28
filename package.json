@@ -1,0 +1,74 @@
+{
+  "name": "zod-request",
+  "version": "0.1.0-canary.0",
+  "description": "Type-safe HTTP requests with Zod",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/**"
+  ],
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "test": "mocha **/*.test.ts",
+    "type-check": "tsc --noEmit",
+    "format:check": "prettier --check .",
+    "format:write": "prettier --write .",
+    "prepublishOnly": "pnpm run test && pnpm run format:check && pnpm run type-check && pnpm run build"
+  },
+  "packageManager": "pnpm@8.14.3",
+  "dependencies": {
+    "lodash.omit": "^4.5.0",
+    "lodash.pick": "^4.4.0",
+    "mustache": "^4.2.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.3.11",
+    "@types/lodash.omit": "^4.5.9",
+    "@types/lodash.pick": "^4.4.9",
+    "@types/mocha": "^10.0.6",
+    "@types/mustache": "^4.2.5",
+    "@types/node": "^20.11.10",
+    "chai": "^5.0.3",
+    "mocha": "^10.2.0",
+    "prettier": "^3.2.4",
+    "tsup": "^8.0.1",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/shahradelahi/zod-request.git"
+  },
+  "keywords": [
+    "zod",
+    "request",
+    "http",
+    "fetch",
+    "axios",
+    "got",
+    "node-fetch",
+    "node",
+    "typescript",
+    "type-safe"
+  ],
+  "author": "Shahrad Elahi <shahrad@litehex.com> (https://github.com/shahradelahi)",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/shahradelahi/zod-request/issues"
+  },
+  "homepage": "https://github.com/shahradelahi/zod-request#readme"
+}
