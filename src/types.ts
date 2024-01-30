@@ -1,14 +1,20 @@
-import type { GlobalResponse } from '@/lib/global-fetch';
-import { z, ZodObject } from 'zod';
+import { z } from 'zod';
 
-export type ZodAnyObject = ZodObject<any>;
+export type ZodAnyObject = z.ZodObject<any>;
 
-type ResponseSchema = ZodAnyObject | undefined;
+export type ZodSerializable =
+  | z.ZodObject<any>
+  | z.ZodArray<any>
+  | z.ZodString
+  | z.ZodNumber
+  | z.ZodBoolean;
 
-export interface Response<ZSchema extends ResponseSchema>
-  extends Omit<GlobalResponse, 'json' | 'text'> {
-  json(): Promise<
-    ZSchema extends undefined ? any : ZSchema extends z.ZodType<infer T> ? T : unknown
-  >;
-  text(): Promise<string>;
-}
+export type ZodJsonLike = z.ZodObject<any> | z.ZodArray<any>;
+
+export type SerializableValue = string | number | boolean | null;
+
+export type SerializableArray = SerializableValue[];
+
+export type SerializableRecord = Record<string, SerializableValue>;
+
+export type Serializable = SerializableValue | SerializableArray | SerializableRecord;

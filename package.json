@@ -1,7 +1,7 @@
 {
   "name": "zod-request",
   "version": "0.1.0-canary.0",
-  "description": "Type-safe HTTP requests with Zod",
+  "description": "Valid and Type-safe HTTP requests using Zod",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -22,23 +22,19 @@
   },
   "scripts": {
     "build": "tsup",
-    "test": "mocha **/*.test.ts",
+    "test": "mocha \"**/*.test.ts\"",
     "type-check": "tsc --noEmit",
     "format:check": "prettier --check .",
     "format:write": "prettier --write .",
     "prepublishOnly": "pnpm run test && pnpm run format:check && pnpm run type-check && pnpm run build"
   },
-  "packageManager": "pnpm@8.14.3",
+  "packageManager": "pnpm@8.15.0",
   "dependencies": {
-    "lodash.omit": "^4.5.0",
-    "lodash.pick": "^4.4.0",
-    "mustache": "^4.2.0",
+    "undici-types": "^6.5.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {
     "@types/chai": "^4.3.11",
-    "@types/lodash.omit": "^4.5.9",
-    "@types/lodash.pick": "^4.4.9",
     "@types/mocha": "^10.0.6",
     "@types/mustache": "^4.2.5",
     "@types/node": "^20.11.10",
