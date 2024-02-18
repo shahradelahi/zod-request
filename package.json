@@ -30,7 +30,7 @@
     "format": "prettier --write .",
     "prepublishOnly": "pnpm run test && pnpm run format:check && pnpm run lint && pnpm run build"
   },
-  "packageManager": "pnpm@8.15.0",
+  "packageManager": "pnpm@8.15.3",
   "dependencies": {
     "undici-types": "^6.6.2",
     "zod": "^3.22.4"
