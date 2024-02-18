@@ -30,19 +30,19 @@
   },
   "packageManager": "pnpm@8.15.0",
   "dependencies": {
-    "undici-types": "^6.5.0",
+    "undici-types": "^6.6.2",
     "zod": "^3.22.4"
   },
   "devDependencies": {
     "@types/chai": "^4.3.11",
     "@types/mocha": "^10.0.6",
     "@types/mustache": "^4.2.5",
-    "@types/node": "^20.11.10",
-    "chai": "^5.0.3",
-    "mocha": "^10.2.0",
-    "prettier": "^3.2.4",
-    "tsup": "^8.0.1",
-    "tsx": "^4.7.0",
+    "@types/node": "^20.11.19",
+    "chai": "^5.1.0",
+    "mocha": "^10.3.0",
+    "prettier": "^3.2.5",
+    "tsup": "^8.0.2",
+    "tsx": "^4.7.1",
     "typescript": "^5.3.3"
   },
   "repository": {
