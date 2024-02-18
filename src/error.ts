@@ -1,4 +1,4 @@
-import { z, ZodError } from 'zod';
+import { ZodError } from 'zod';
 
 export class SchemaError implements Error {
   readonly name = 'SchemaError';

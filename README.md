@@ -44,10 +44,10 @@ console.log(data.length); // 200
   <summary>POST request with Form Data</summary>
 
 ```typescript
-import { fetch, type RequestSchema } from 'zod-request';
+import { fetch } from 'zod-request';
 import { z } from 'zod';
 
-const schema: RequestSchema = {
+const schema = {
   body: z.object({
     name: z.string(),
     age: z.number()
@@ -60,7 +60,7 @@ const schema: RequestSchema = {
 const response = await fetch('https://httpbin.org/post', {
   method: 'POST',
   headers: {
-    'Content-Type': 'application/json'
+    'Content-Type': 'multipart/form-data'
   },
   form: {
     name: 'John',

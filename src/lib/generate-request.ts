@@ -1,22 +1,11 @@
 import { URLSearchParamsInit } from '@/lib/global-fetch';
-import { SerializableRecord, ZodAnyObject, ZodSerializable } from '@/types';
+import type { SerializableRecord, ZodAnyObject, ZodSerializable } from '@/types';
 import { z } from 'zod';
 
 type BodySchema = ZodAnyObject | z.ZodString;
 
-// export type RequestBody<ZSchema extends BodySchema> =
-//   ZSchema extends z.ZodType<infer ZSchema> ? ZSchema : RequestInit['body'];
-//
-// export type RequestFormData<ZSchema extends BodySchema> =
-//   ZSchema extends z.ZodType<infer ZSchema> ? ZSchema : SerializableRecord;
-//
-// export type RequestSearchParams<ZSchema extends ZodAnyObject> =
-//   ZSchema extends z.ZodType<infer ZSchema> ? ZSchema : URLSearchParamsInit;
-//
-// export type RequestHeaders<ZSchema extends ZodAnyObject> =
-//   ZSchema extends z.ZodType<infer ZSchema> ? ZSchema : RequestInit['headers'];
-
-export type RequestOption<Z extends z.ZodType, E = unknown> = Z extends z.ZodType<infer Z> ? Z : E;
+export type RequestOption<ZSchema extends z.ZodType, E = unknown> =
+  ZSchema extends z.ZodType<infer Z> ? Z : E;
 
 export type RequestBody<ZSchema extends BodySchema> = RequestOption<ZSchema, RequestInit['body']>;
 
@@ -46,29 +35,34 @@ export type RequestSchema = {
   body?: BodySchema;
 };
 
-export interface InnerRequestInit<RSchema extends RequestSchema, RMethod extends RequestMethod>
-  extends Omit<RequestInit, 'url' | 'headers' | 'body' | 'method'> {
+export type InnerRequestInit<RSchema extends RequestSchema, RMethod extends RequestMethod> = Omit<
+  RequestInit,
+  'url' | 'headers' | 'body' | 'method'
+> & {
   schema?: RSchema;
   method?: RMethod;
-  body?: MethodHasBody<RMethod> extends false // If method doesn't have body, then body must be undefined.
-    ? never
-    : RSchema['body'] extends BodySchema
-      ? RequestBody<RSchema['body']>
-      : any; // Because of there is a body but not a schema, we can't infer the type of body.
-  // This option will convert the given object to a FormData instance and uses it as the request body.
-  form?: MethodHasBody<RMethod> extends false // If method doesn't have body, then form must be undefined.
-    ? never
-    : RSchema['body'] extends BodySchema
-      ? RequestFormData<RSchema['body']>
-      : SerializableRecord; // Because of there is a body but not a schema, form can be any serializable type.
-  // This option is searchParams and will automatically append the given URL.
-  params?: RSchema['searchParams'] extends z.ZodType
-    ? RequestSearchParams<RSchema['searchParams']>
-    : URLSearchParamsInit;
-  headers?: RSchema['headers'] extends z.ZodType
-    ? RequestHeaders<RSchema['headers']>
-    : RequestInit['headers'];
-}
+} & (RSchema['searchParams'] extends z.ZodType // searchParams and will automatically append the given URL.
+    ? { params: RequestSearchParams<RSchema['searchParams']> }
+    : { params?: URLSearchParamsInit | undefined }) &
+  (RSchema['headers'] extends z.ZodType
+    ? { headers: RequestHeaders<RSchema['headers']> }
+    : { headers?: RequestInit['headers'] | undefined }) &
+  (MethodHasBody<RMethod> extends true
+    ? RSchema['body'] extends BodySchema
+      ?
+          | {
+              body: RequestBody<RSchema['body']>;
+              form?: never;
+            }
+          | {
+              body?: never;
+              form: RequestFormData<RSchema['body']>;
+            }
+      : {
+          body?: RequestInit['body'];
+          form?: SerializableRecord;
+        }
+    : { body?: never; form?: never });
 
 export function generateRequest<ZSchema extends RequestSchema, ZMethod extends RequestMethod>(
   url: URL | string,
@@ -83,8 +77,8 @@ export function generateRequest<ZSchema extends RequestSchema, ZMethod extends R
     ...restInit
   } = init;
 
-  let newInit: RequestInit = restInit;
-  let _url = toURL(url);
+  const newInit: RequestInit = restInit;
+  const _url = toURL(url);
 
   if (schema?.searchParams) {
     const parsedSearchParams = parseSearchParams(rawSearchParams, schema.searchParams);

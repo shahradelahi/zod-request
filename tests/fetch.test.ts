@@ -28,7 +28,8 @@ describe('Fetch', () => {
 
     const data = await resp.json();
 
-    console.log(data);
+    expect(data).to.be.an('object');
+    expect(data).to.have.property('userId');
   });
 
   it('fetch todos unsafe text', async () => {
@@ -42,7 +43,23 @@ describe('Fetch', () => {
 
     const data = await resp.unsafeText();
 
-    console.log(data);
+    expect(data).to.be.a('string');
+    expect(data).to.not.equal('');
+  });
+
+  it('fetch posts', async () => {
+    const resp = await fetch('https://jsonplaceholder.typicode.com/posts', {
+      schema: {
+        response: z.array(postSchema)
+      }
+    });
+
+    expect(resp.ok).to.be.true;
+
+    const data = await resp.json();
+
+    expect(data).to.be.an('array');
+    expect(data).to.have.lengthOf(100);
   });
 });
 
