@@ -1,5 +1,5 @@
-import { URLSearchParamsInit } from '@/lib/global-fetch';
-import type { SerializableRecord, ZodAnyObject, ZodSerializable } from '@/types';
+import type { URLSearchParamsInit } from '@/lib/global-fetch';
+import type { SerializableRecord, ZodAnyObject } from '@/types';
 import { z } from 'zod';
 
 type BodySchema = ZodAnyObject | z.ZodString;
@@ -31,7 +31,7 @@ type MethodHasBody<M> = M extends 'POST' | 'PUT' | 'PATCH' ? true : false;
 export type RequestSchema = {
   searchParams?: ZodAnyObject;
   headers?: ZodAnyObject;
-  response?: ZodSerializable;
+  response?: z.ZodType;
   body?: BodySchema;
 };
 

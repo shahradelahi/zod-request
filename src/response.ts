@@ -1,12 +1,11 @@
 import { ResponseValidationError, SchemaError } from '@/error';
 import type { GlobalResponse } from '@/lib/global-fetch';
-import type { ZodSerializable } from '@/types';
 import { Blob } from 'buffer';
 import { ReadableStream } from 'stream/web';
 import type { FormData, Headers, ResponseType } from 'undici-types';
 import { z } from 'zod';
 
-export type ResponseSchema = ZodSerializable | undefined;
+export type ResponseSchema = z.ZodType | undefined;
 
 export class Response<ZSchema extends ResponseSchema> implements globalThis.Response {
   readonly headers: Headers;
@@ -52,11 +51,6 @@ export class Response<ZSchema extends ResponseSchema> implements globalThis.Resp
     const data = await this.unsafeJson();
 
     if (this.schema) {
-      // Json can be an object or an array. If it's neither, we can't validate it.
-      if (!(this.schema instanceof z.ZodObject) && !(this.schema instanceof z.ZodArray)) {
-        throw new SchemaError('Response schema must be an object or an array.');
-      }
-
       const parsedData = this.schema.safeParse(data);
       if (!parsedData.success) {
         throw new ResponseValidationError(parsedData.error.errors);

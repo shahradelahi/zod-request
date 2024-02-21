@@ -61,6 +61,45 @@ describe('Fetch', () => {
     expect(data).to.be.an('array');
     expect(data).to.have.lengthOf(100);
   });
+
+  it('should parse union schema', async () => {
+    const resp = await fetch('https://www.virustotal.com/api/v3/files/{id}', {
+      schema: {
+        // response: z.object({
+        //   error: z
+        //     .object({
+        //       code: z.number(),
+        //       message: z.string()
+        //     })
+        //     .optional(),
+        //   data: z.record(z.any()).optional()
+        // })
+        response: z.union([
+          // error
+          z.object({
+            error: z.object({
+              code: z.string(),
+              message: z.string()
+            })
+          }),
+          // success
+          z.object({
+            data: z.any()
+          })
+        ])
+      }
+    });
+
+    const data = await resp.json();
+
+    expect(data).to.be.an('object');
+
+    if ('error' in data) {
+      // Types are narrowed
+      expect(data.error).to.have.property('code');
+      expect(data.error).to.have.property('message');
+    }
+  });
 });
 
 describe('Fetch - Error', () => {
@@ -102,27 +141,6 @@ describe('Fetch - Error', () => {
 
       expect(err).to.instanceOf(SchemaError);
       expect(err.message).to.equal('Response schema must be a string.');
-    }
-  });
-
-  it('Uses json() with non-json schema', async () => {
-    try {
-      const resp = await fetch('https://jsonplaceholder.typicode.com/posts', {
-        schema: {
-          response: z.string()
-        }
-      });
-
-      await resp.json();
-
-      expect.fail('Should have thrown an error.');
-    } catch (err: any) {
-      if (err instanceof AssertionError) {
-        throw err;
-      }
-
-      expect(err).to.instanceOf(SchemaError);
-      expect(err.message).to.equal('Response schema must be an object or an array.');
     }
   });
 });
