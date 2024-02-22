@@ -41,7 +41,7 @@ console.log(data.length); // 200
 ## Examples
 
 <details>
-  <summary>POST request with Form Data</summary>
+  <summary>Send a Post request with a FormData body</summary>
 
 ```typescript
 import { fetch } from 'zod-request';
@@ -53,15 +53,13 @@ const schema = {
     age: z.number()
   }),
   response: z.object({
-    form: z.record(z.any())
+    form: z.record(z.any()),
+    headers: z.record(z.string())
   })
 };
 
 const response = await fetch('https://httpbin.org/post', {
   method: 'POST',
-  headers: {
-    'Content-Type': 'multipart/form-data'
-  },
   form: {
     name: 'John',
     age: 20
@@ -69,14 +67,15 @@ const response = await fetch('https://httpbin.org/post', {
   schema: schema
 });
 
-const data = await response.json();
-console.log(data); // { form: { name: 'John', age: '20' } }
+const { form, headers } = await response.json();
+console.log(form); // { name: 'John', age: '20' }
+console.log(headers); // { 'Content-Type': 'multipart/form-data; boundary=---- ...
 ```
 
 </details>
 
 <details>
-  <summary>Get Unsafe Response body (Skip validation)</summary>
+  <summary>Skip body validation for a request</summary>
 
 ```typescript
 const response = await fetch('https://jsonplaceholder.typicode.com/todos', {
@@ -86,7 +85,7 @@ const response = await fetch('https://jsonplaceholder.typicode.com/todos', {
   }
 });
 
-const data = await response.unsafeJson();
+const data = await response.unsafeJson(); // Throws an error if the response is not a valid JSON
 
 console.log(Array.isArray(data)); // true
 console.log(data.length); // 200
