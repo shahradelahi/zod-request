@@ -1,5 +1,6 @@
 import type { URLSearchParamsInit } from '@/lib/global-fetch';
 import type { SerializableRecord, ZodAnyObject } from '@/types';
+import { removeUndefined } from '@/utils/object';
 import { z } from 'zod';
 
 type BodySchema = ZodAnyObject | z.ZodString;
@@ -131,7 +132,17 @@ export function generateRequest<ZSchema extends RequestSchema, ZMethod extends R
   }
 
   if (schema?.headers) {
+    if (typeof rawHeaders === 'undefined') {
+      throw new Error('Headers schema is defined but no headers were provided.');
+    }
+
     newInit.headers = parseHeaders(rawHeaders, schema.headers);
+  } else {
+    // We are not suppose to strict headers if schema is not provided.
+    // Just remove undefined headers.
+    if (rawHeaders) {
+      newInit.headers = removeUndefined(rawHeaders) as Record<string, any>;
+    }
   }
 
   return {
