@@ -1,6 +1,6 @@
 import { fetch, ResponseValidationError, SchemaError } from '@/index';
 import { AssertionError, expect } from 'chai';
-import { z } from 'zod';
+import { z, ZodError } from 'zod';
 
 const todoSchema = z.object({
   userId: z.number(),
@@ -98,6 +98,111 @@ describe('Fetch', () => {
       // Types are narrowed
       expect(data.error).to.have.property('code');
       expect(data.error).to.have.property('message');
+    }
+  });
+});
+
+describe('Fetch - Headers', () => {
+  it('should have optional headers', async () => {
+    // This means skip header schema and pass any headers
+
+    const resp = await fetch('https://httpbin.org/get', {
+      headers: {
+        'X-Custom-Header': 'value'
+      },
+      schema: {
+        response: z.object({
+          headers: z.record(z.string())
+        })
+      }
+    });
+
+    const data = await resp.json();
+
+    expect(data).to.be.an('object');
+    expect(data).to.have.property('headers');
+    expect(data.headers).to.be.an('object');
+    expect(data.headers).to.have.property('X-Custom-Header');
+    expect(data.headers['X-Custom-Header']).to.equal('value');
+  });
+
+  it('should validate headers and work', async () => {
+    const resp = await fetch('https://httpbin.org/get', {
+      headers: {
+        'X-Custom-Header': 'value'
+      },
+      schema: {
+        response: z.object({
+          headers: z.record(z.string())
+        }),
+        headers: z.object({
+          'X-Custom-Header': z.string()
+        })
+      }
+    });
+
+    const data = await resp.json();
+
+    expect(data).to.be.an('object');
+    expect(data).to.have.property('headers');
+    expect(data.headers).to.be.an('object');
+    expect(data.headers).to.have.property('X-Custom-Header');
+    expect(data.headers['X-Custom-Header']).to.equal('value');
+  });
+
+  it('should throw error because we have schema for headers but no headers', async () => {
+    try {
+      // @ts-expect-error @ts-expect-error
+      const resp = await fetch('https://httpbin.org/get', {
+        schema: {
+          response: z.object({
+            headers: z.record(z.string())
+          }),
+          headers: z.object({
+            'X-Custom-Header': z.string()
+          })
+        }
+      });
+
+      await resp.json();
+
+      expect.fail('Should have thrown an error.');
+    } catch (err: any) {
+      if (err instanceof AssertionError) {
+        throw err;
+      }
+
+      expect(err).to.instanceOf(Error);
+      expect(err.message).to.equal('Headers schema is defined but no headers were provided.');
+    }
+  });
+
+  it('should throw error because headers do not match schema', async () => {
+    try {
+      const resp = await fetch('https://httpbin.org/get', {
+        headers: {
+          // @ts-expect-error @ts-expect-error
+          'X-Custom-Header': 123
+        },
+        schema: {
+          response: z.object({
+            headers: z.record(z.string())
+          }),
+          headers: z.object({
+            'X-Custom-Header': z.string()
+          })
+        }
+      });
+
+      await resp.json();
+
+      expect.fail('Should have thrown an error.');
+    } catch (err: any) {
+      if (err instanceof AssertionError) {
+        throw err;
+      }
+
+      expect(err).to.instanceOf(ZodError);
     }
   });
 });

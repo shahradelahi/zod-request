@@ -42,9 +42,7 @@ describe('Docs', () => {
 
     const response = await fetch('https://httpbin.org/post', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      },
+      // We not need to set Content-Type, it will automatically set to 'multipart/form-data' and its boundary
       form: {
         name: 'John',
         age: 20
