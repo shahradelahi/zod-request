@@ -5,7 +5,7 @@ Valid and Type-safe HTTP requests using Zod
 ## Installation
 
 ```bash
-npm install zod-request
+npm install zod-request zod
 ```
 
 ## Usage

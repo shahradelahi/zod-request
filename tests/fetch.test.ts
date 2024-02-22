@@ -102,6 +102,71 @@ describe('Fetch', () => {
   });
 });
 
+describe('Fetch - FormData', () => {
+  it('should send form data without schema though "body" field', async () => {
+    const formData = new FormData();
+    formData.append('name', 'John');
+
+    const blob = new Blob(['Hello World'], { type: 'text/plain' });
+    formData.append('file', blob, 'hello.txt');
+
+    const resp = await fetch('https://httpbin.org/post', {
+      method: 'POST',
+      body: formData,
+      schema: {
+        response: z.object({
+          headers: z.record(z.string()),
+          files: z.record(z.string()),
+          form: z.record(z.any())
+        })
+      }
+    });
+
+    expect(resp.ok).to.be.true;
+
+    const { form, files, headers } = await resp.json();
+    // console.log(data);
+
+    expect(headers).to.be.an('object');
+    expect(headers).to.have.property('Content-Type');
+    expect(headers['Content-Type']).to.include('multipart/form-data; boundary=');
+
+    expect(form).to.be.an('object');
+    expect(form).to.have.property('name');
+    expect(form.name).to.equal('John');
+
+    expect(files).to.be.an('object');
+    expect(files).to.have.property('file');
+    expect(files.file).to.equal('Hello World');
+  });
+
+  it('should throw error because we have schema for body but no body', async () => {
+    try {
+      const resp = await fetch('https://httpbin.org/post', {
+        schema: {
+          response: z.object({
+            headers: z.record(z.string()),
+            files: z.record(z.string()),
+            form: z.record(z.any())
+          }),
+          body: z.instanceof(FormData)
+        }
+      });
+
+      await resp.json();
+
+      expect.fail('Should have thrown an error.');
+    } catch (err: any) {
+      if (err instanceof AssertionError) {
+        throw err;
+      }
+
+      expect(err).to.instanceOf(Error);
+      expect(err.message).to.equal('Body schema is defined but no body was provided.');
+    }
+  });
+});
+
 describe('Fetch - Headers', () => {
   it('should have optional headers', async () => {
     // This means skip header schema and pass any headers
@@ -204,6 +269,32 @@ describe('Fetch - Headers', () => {
 
       expect(err).to.instanceOf(ZodError);
     }
+  });
+
+  it('should not add optional headers as undefined', async () => {
+    const resp = await fetch('https://httpbin.org/get', {
+      headers: {
+        'X-Custom-Header': 'value'
+      },
+      schema: {
+        response: z.object({
+          headers: z.record(z.string())
+        }),
+        headers: z.object({
+          'X-Custom-Header': z.string(),
+          'X-Optional-Header': z.string().optional()
+        })
+      }
+    });
+
+    const data = await resp.json();
+
+    expect(data).to.be.an('object');
+    expect(data).to.have.property('headers');
+    expect(data.headers).to.be.an('object');
+    expect(data.headers).to.have.property('X-Custom-Header');
+    expect(data.headers['X-Custom-Header']).to.equal('value');
+    expect(data.headers).to.not.have.property('X-Optional-Header');
   });
 });
 

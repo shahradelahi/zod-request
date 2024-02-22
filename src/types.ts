@@ -2,6 +2,8 @@ import { z } from 'zod';
 
 export type ZodAnyObject = z.ZodObject<any>;
 
+export type ZodFormData = z.ZodType<FormData, z.ZodTypeDef, FormData>;
+
 export type ZodSerializable =
   | z.ZodObject<any>
   | z.ZodArray<any>

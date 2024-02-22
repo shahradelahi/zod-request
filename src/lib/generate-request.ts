@@ -1,9 +1,9 @@
 import type { URLSearchParamsInit } from '@/lib/global-fetch';
-import type { SerializableRecord, ZodAnyObject } from '@/types';
+import type { SerializableRecord, ZodAnyObject, ZodFormData } from '@/types';
 import { removeUndefined } from '@/utils/object';
 import { z } from 'zod';
 
-type BodySchema = ZodAnyObject | z.ZodString;
+type BodySchema = ZodFormData | ZodAnyObject | z.ZodString;
 
 export type RequestOption<ZSchema extends z.ZodType, E = unknown> =
   ZSchema extends z.ZodType<infer Z> ? Z : E;
@@ -74,7 +74,7 @@ export function generateRequest<ZSchema extends RequestSchema, ZMethod extends R
     params: rawSearchParams,
     headers: rawHeaders,
     body: rawBody,
-    form,
+    form: rawForm,
     ...restInit
   } = init;
 
@@ -86,48 +86,6 @@ export function generateRequest<ZSchema extends RequestSchema, ZMethod extends R
 
     for (const [key, value] of Object.entries(parsedSearchParams)) {
       _url.searchParams.set(key, value);
-    }
-  }
-
-  if (schema?.body) {
-    if (['GET', 'HEAD', 'OPTIONS'].includes(init.method || 'GET')) {
-      throw new Error('Request with GET/HEAD/OPTIONS method cannot have body.');
-    }
-
-    if (typeof rawBody === 'undefined' && typeof form === 'undefined') {
-      throw new Error('Request body is required.');
-    }
-
-    if (form) {
-      if (typeof form !== 'object') {
-        throw new Error('Form must be an serializable object. Got ' + typeof form);
-      }
-
-      const formData = new FormData();
-
-      for (const [key, value] of Object.entries(form)) {
-        formData.append(key, value);
-      }
-
-      newInit.body = formData;
-    } else {
-      if (schema.body instanceof z.ZodString) {
-        if (typeof rawBody !== 'string') {
-          throw new Error('Body must be a string. Got ' + typeof rawBody);
-        }
-
-        newInit.body = schema.body.parse(rawBody);
-      }
-
-      if (schema.body instanceof z.ZodObject) {
-        if (typeof rawBody !== 'object') {
-          throw new Error('Body must be an object. Got ' + typeof rawBody);
-        }
-
-        const parsedBody = schema.body.parse(rawBody);
-
-        newInit.body = JSON.stringify(parsedBody);
-      }
     }
   }
 
@@ -145,6 +103,47 @@ export function generateRequest<ZSchema extends RequestSchema, ZMethod extends R
     }
   }
 
+  const RequestHasBody = rawBody || rawForm;
+
+  if (RequestHasBody && init.method && !requestMethodCanHaveBody(init.method)) {
+    throw new Error('Request with ' + init.method + ' method cannot have body.');
+  }
+
+  if (schema?.body && !RequestHasBody) {
+    throw new Error('Body schema is defined but no body was provided.');
+  }
+
+  if (RequestHasBody) {
+    // If there was schema provided, we need to validate the body.
+
+    let finalizedBody;
+
+    if (rawForm) {
+      const formInit = schema?.body ? schema.body.parse(rawForm) : rawForm;
+      finalizedBody = generateFormDataFromInit(formInit);
+    }
+
+    if (rawBody) {
+      const bodyInit = schema?.body ? schema.body.parse(rawBody) : rawBody;
+      finalizedBody = bodyInit;
+    }
+
+    // If header content-type is "application/json" and body is an object, then stringify the body.
+    const contentType = Object.keys(newInit.headers || {}).find(
+      (header) => header.toLowerCase() === 'content-type'
+    );
+
+    if (
+      contentType &&
+      contentType.includes('application/json') &&
+      typeof finalizedBody === 'object'
+    ) {
+      finalizedBody = JSON.stringify(finalizedBody);
+    }
+
+    newInit.body = finalizedBody as RequestInit['body'];
+  }
+
   return {
     url: _url.toString(),
     input: newInit
@@ -153,6 +152,32 @@ export function generateRequest<ZSchema extends RequestSchema, ZMethod extends R
 
 function toURL(url: URL | string): URL {
   return url instanceof URL ? url : new URL(url);
+}
+
+function requestMethodCanHaveBody(method: RequestMethod) {
+  return ['POST', 'PUT', 'PATCH'].includes(method);
+}
+
+function generateFormDataFromInit(init: Omit<InnerRequestInit<any, any>['form'], never>) {
+  if (typeof init === 'undefined') {
+    throw new Error('Form is required.');
+  }
+
+  if (init instanceof FormData) return init;
+
+  if (typeof init !== 'object') {
+    throw new Error('Form must be an serializable object. Got ' + typeof init);
+  }
+
+  // Removing the undefined values from the form because it will automatically cast to string.
+  const noUndefined = removeUndefined(init);
+  const out = new FormData();
+
+  for (const [key, value] of Object.entries(noUndefined)) {
+    out.set(key, value);
+  }
+
+  return out;
 }
 
 function parseSearchParams(
@@ -170,14 +195,17 @@ function parseSearchParams(
   return outSearchParams;
 }
 
-function parseHeaders(rawHeaders: InnerRequestInit<any, any>['headers'], schema: ZodAnyObject) {
-  const headers = schema.parse(rawHeaders);
+function parseHeaders(
+  rawHeaders: Omit<InnerRequestInit<any, any>['headers'], never>,
+  schema: ZodAnyObject
+) {
+  const noUndefined = removeUndefined(rawHeaders);
+  const headersInit = schema.parse(noUndefined);
+  const out: Record<string, string> = {};
 
-  const outHeaders: Record<string, string> = {};
-
-  for (const [key, value] of Object.entries(headers)) {
-    outHeaders[key] = value;
+  for (const [key, value] of Object.entries(headersInit)) {
+    out[key] = value;
   }
 
-  return outHeaders;
+  return out;
 }
