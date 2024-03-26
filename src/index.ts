@@ -25,11 +25,13 @@ export async function fetch<ZSchema extends RequestSchema, RMethod extends Reque
 
 // ------------------------------
 
-export type { ZodRequestInit, RequestSchema };
+export type { ZodRequestInit, RequestSchema, RequestMethod };
 export type { RequestInit } from '@/types';
 
 export { ZodResponse, ZodResponse as Response };
 export type { URLSearchParamsInit } from '@/lib/global-fetch';
+
+export { generateRequest };
 
 // ------------------------------
 
