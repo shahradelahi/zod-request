@@ -50,6 +50,12 @@ console.log(data.length); // 200
 
 For all configuration options, please see [the API docs](https://paka.dev/npm/zod-request@canary/api).
 
+## 🤝 Contributing
+
+You can contribute to this project by opening an issue or a pull request
+on [GitHub](https://github.com/shahradelahi/zod-request). Feel free to contribute, we care about your ideas and
+suggestions.
+
 ## Examples
 
 <details>
@@ -109,12 +115,6 @@ console.log(data.length); // 200
 
 - [Zod Documentation](https://zod.dev/)
 - [Transform JSON to Zod Schema](https://transform.tools/json-to-zod)
-
-### Contributing
-
-You can contribute to this project by opening an issue or a pull request
-on [GitHub](https://github.com/shahradelahi/zod-request). Feel free to contribute, we care about your ideas and
-suggestions.
 
 ## License
 

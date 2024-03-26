@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 export type ResponseSchema = z.ZodType | undefined;
 
-export class Response<ZSchema extends ResponseSchema> implements globalThis.Response {
+export class ZodResponse<ZSchema extends ResponseSchema> implements globalThis.Response {
   readonly headers: Headers;
   readonly ok: boolean;
   readonly status: number;
@@ -81,7 +81,7 @@ export class Response<ZSchema extends ResponseSchema> implements globalThis.Resp
     return data;
   }
 
-  clone(): Response<ZSchema> {
-    return new Response(this.resp.clone(), this.schema);
+  clone(): ZodResponse<ZSchema> {
+    return new ZodResponse(this.resp.clone(), this.schema);
   }
 }
