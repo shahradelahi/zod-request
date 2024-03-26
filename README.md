@@ -1,14 +1,22 @@
 # zod-request
 
-Valid and Type-safe HTTP requests using Zod
+> Validated and Type-safe HTTP requests using Zod
 
-## Installation
+[![npm](https://img.shields.io/npm/v/zod-request)](https://www.npmjs.com/package/zod-request)
+[![install size](https://packagephobia.com/badge?p=zod-request)](https://packagephobia.com/result?p=zod-request)
+
+## Notable Features
+
+- Exact API as Native `fetch` with extra features
+- Supports every environment (**Node.js**, **Browser**, Bun, etc.)
+
+## 📦 Installation
 
 ```bash
 npm install zod-request zod
 ```
 
-## Usage
+## 📖 Usage
 
 ```typescript
 import { fetch } from 'zod-request';
@@ -37,6 +45,10 @@ const data = await response.json();
 console.log(Array.isArray(data)); // true
 console.log(data.length); // 200
 ```
+
+## 📚 Documentation
+
+For all configuration options, please see [the API docs](https://paka.dev/npm/zod-request@canary/api).
 
 ## Examples
 
@@ -97,6 +109,12 @@ console.log(data.length); // 200
 
 - [Zod Documentation](https://zod.dev/)
 - [Transform JSON to Zod Schema](https://transform.tools/json-to-zod)
+
+### Contributing
+
+You can contribute to this project by opening an issue or a pull request
+on [GitHub](https://github.com/shahradelahi/zod-request). Feel free to contribute, we care about your ideas and
+suggestions.
 
 ## License
 
