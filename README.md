@@ -100,4 +100,4 @@ console.log(data.length); // 200
 
 ## License
 
-This project is licensed under the GPL-3.0 License - see the [LICENSE](LICENSE) file for details
+[MIT](LICENSE) © [Shahrad Elahi](https://github.com/shahradelahi)

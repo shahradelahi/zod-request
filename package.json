@@ -64,7 +64,7 @@
     "type-safe"
   ],
   "author": "Shahrad Elahi <shahrad@litehex.com> (https://github.com/shahradelahi)",
-  "license": "GPL-3.0",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/shahradelahi/zod-request/issues"
   },
