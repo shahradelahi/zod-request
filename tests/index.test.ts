@@ -1,4 +1,4 @@
-import { fetch } from '@/index';
+import { fetch } from 'zod-request';
 import { expect } from 'chai';
 import { z } from 'zod';
 

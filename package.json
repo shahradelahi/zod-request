@@ -33,7 +33,6 @@
   "packageManager": "pnpm@8.15.0",
   "dependencies": {
     "mustache": "^4.2.0",
-    "undici-types": "^6.6.2",
     "zod": "^3.22.4"
   },
   "devDependencies": {

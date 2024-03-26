@@ -117,7 +117,7 @@ export function generateRequest<ZSchema extends RequestSchema, ZMethod extends R
 
   if (schema?.headers) {
     if (typeof rawHeaders === 'undefined') {
-      throw new Error('Headers schema is defined but no headers were provided.');
+      throw new ZodRequestError('Headers schema is defined but no headers were provided.');
     }
 
     newInit.headers = parseHeaders(rawHeaders, schema.headers);
@@ -132,11 +132,11 @@ export function generateRequest<ZSchema extends RequestSchema, ZMethod extends R
   const RequestHasBody = rawBody || rawForm;
 
   if (RequestHasBody && init.method && !requestMethodCanHaveBody(init.method)) {
-    throw new Error('Request with ' + init.method + ' method cannot have body.');
+    throw new ZodRequestError('Request with ' + init.method + ' method cannot have body.');
   }
 
   if (schema?.body && !RequestHasBody) {
-    throw new Error('Body schema is defined but no body was provided.');
+    throw new ZodRequestError('Body schema is defined but no body was provided.');
   }
 
   if (RequestHasBody) {
@@ -186,13 +186,13 @@ function requestMethodCanHaveBody(method: RequestMethod) {
 
 function generateFormDataFromInit(init: Omit<InnerRequestInit<any, any>['form'], never>) {
   if (typeof init === 'undefined') {
-    throw new Error('Form is required.');
+    throw new ZodRequestError('Form is required.');
   }
 
   if (init instanceof FormData) return init;
 
   if (typeof init !== 'object') {
-    throw new Error('Form must be an serializable object. Got ' + typeof init);
+    throw new ZodRequestError('Form must be an serializable object. Got ' + typeof init);
   }
 
   // Removing the undefined values from the form because it will automatically cast to string.
@@ -200,7 +200,10 @@ function generateFormDataFromInit(init: Omit<InnerRequestInit<any, any>['form'],
   const out = new FormData();
 
   for (const [key, value] of Object.entries(noUndefined)) {
-    out.set(key, value);
+    if (!(value instanceof Blob) && !['string', 'number'].includes(typeof value)) {
+      throw new ZodRequestError('Form data must be a string, number or Blob.');
+    }
+    out.set(key, value instanceof Blob ? value : String(value));
   }
 
   return out;

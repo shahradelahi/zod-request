@@ -1,4 +1,4 @@
-import { fetch, ZodValidationError, SchemaError } from '@/index';
+import { fetch, ZodValidationError, ZodRequestError } from 'zod-request';
 import { AssertionError, expect } from 'chai';
 import { z, ZodError } from 'zod';
 
@@ -358,7 +358,7 @@ describe('Fetch - Error', () => {
         throw err;
       }
 
-      expect(err).to.instanceOf(SchemaError);
+      expect(err).to.instanceOf(ZodRequestError);
       expect(err.message).to.equal('Response schema must be a string.');
     }
   });

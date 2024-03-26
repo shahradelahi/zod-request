@@ -1,14 +1,5 @@
 import { ZodError, ZodIssue } from 'zod';
 
-export class SchemaError implements Error {
-  readonly name = 'SchemaError';
-
-  constructor(
-    public readonly message: string,
-    public readonly stack?: string
-  ) {}
-}
-
 export class ZodValidationError extends ZodError {
   readonly name = 'ZodValidationError';
 

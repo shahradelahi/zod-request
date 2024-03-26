@@ -1,8 +1,5 @@
-import { ZodValidationError, SchemaError } from '@/error';
+import { ZodRequestError, ZodValidationError } from '@/error';
 import type { GlobalResponse } from '@/lib/global-fetch';
-import { Blob } from 'buffer';
-import { ReadableStream } from 'stream/web';
-import type { FormData, Headers, ResponseType } from 'undici-types';
 import { z } from 'zod';
 
 export type ResponseSchema = z.ZodType | undefined;
@@ -16,7 +13,7 @@ export class Response<ZSchema extends ResponseSchema> implements globalThis.Resp
   readonly url: string;
   readonly redirected: boolean;
 
-  readonly body: ReadableStream<any> | null;
+  readonly body: ReadableStream | null;
   readonly bodyUsed: boolean;
 
   readonly arrayBuffer: () => Promise<ArrayBuffer>;
@@ -53,7 +50,7 @@ export class Response<ZSchema extends ResponseSchema> implements globalThis.Resp
     if (this.schema) {
       const parsedData = this.schema.safeParse(data);
       if (!parsedData.success) {
-        throw new ZodValidationError(parsedData.error.errors);
+        throw ZodValidationError.fromZodError(parsedData.error);
       }
 
       return parsedData.data as any;
@@ -71,13 +68,13 @@ export class Response<ZSchema extends ResponseSchema> implements globalThis.Resp
 
     if (this.schema) {
       // Text can only be a string. If it's not, we can't validate it.
-      if (!(this.schema instanceof z.ZodString)) {
-        throw new SchemaError('Response schema must be a string.');
+      if (!((this.schema as z.ZodType) instanceof z.ZodString)) {
+        throw new ZodRequestError('Response schema must be a string.');
       }
 
       const parsedData = this.schema.safeParse(data);
       if (!parsedData.success) {
-        throw new ZodValidationError(parsedData.error.errors);
+        throw ZodValidationError.fromZodError(parsedData.error);
       }
     }
 
