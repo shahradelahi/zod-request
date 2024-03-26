@@ -28,7 +28,7 @@
     "lint:fix": "eslint --fix \"src/**/*.ts\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,json,md}\"",
     "format": "prettier --write .",
-    "prepublishOnly": "pnpm run test && pnpm run format:check && pnpm run lint && pnpm run build"
+    "prepublishOnly": "pnpm test && pnpm run format:check && pnpm lint && pnpm build"
   },
   "packageManager": "pnpm@8.15.0",
   "dependencies": {
