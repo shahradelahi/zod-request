@@ -1,8 +1,8 @@
-export function getGlobalFetch() {
-  return fetch as unknown as FetchFn;
-}
+const GLOBAL_FETCH = globalThis?.fetch ?? fetch;
 
-export type FetchFn = typeof fetch;
+export function getGlobalFetch() {
+  return GLOBAL_FETCH;
+}
 
 export type URLSearchParamsInit =
   | URLSearchParams
