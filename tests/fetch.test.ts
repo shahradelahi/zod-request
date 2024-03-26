@@ -1,4 +1,4 @@
-import { fetch, ResponseValidationError, SchemaError } from '@/index';
+import { fetch, ZodValidationError, SchemaError } from '@/index';
 import { AssertionError, expect } from 'chai';
 import { z, ZodError } from 'zod';
 
@@ -99,6 +99,29 @@ describe('Fetch', () => {
       expect(data.error).to.have.property('code');
       expect(data.error).to.have.property('message');
     }
+  });
+});
+
+describe('Fetch - Path', () => {
+  it('should parse path params', async () => {
+    const resp = await fetch('https://jsonplaceholder.typicode.com/posts/{{id}}', {
+      path: {
+        id: 1
+      },
+      schema: {
+        path: z.object({
+          id: z.number()
+        }),
+        response: postSchema
+      }
+    });
+
+    const data = await resp.json();
+
+    expect(data).to.be.an('object');
+    expect(data).to.have.property('id');
+
+    expect(data.id).to.equal(1);
   });
 });
 
@@ -315,7 +338,7 @@ describe('Fetch - Error', () => {
         throw err;
       }
 
-      expect(err).to.instanceOf(ResponseValidationError);
+      expect(err).to.instanceOf(ZodValidationError);
     }
   });
 

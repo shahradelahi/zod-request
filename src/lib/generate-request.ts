@@ -1,6 +1,8 @@
+import { ZodRequestError } from '@/error';
 import type { URLSearchParamsInit } from '@/lib/global-fetch';
 import type { SerializableRecord, ZodAnyObject, ZodFormData } from '@/types';
 import { removeUndefined } from '@/utils/object';
+import Mustache from 'mustache';
 import { z } from 'zod';
 
 type BodySchema = ZodFormData | ZodAnyObject | z.ZodString;
@@ -30,6 +32,7 @@ export type RequestMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD'
 type MethodHasBody<M> = M extends 'POST' | 'PUT' | 'PATCH' ? true : false;
 
 export type RequestSchema = {
+  path?: z.ZodRecord<any> | z.ZodObject<any>;
   searchParams?: ZodAnyObject;
   headers?: ZodAnyObject;
   response?: z.ZodType;
@@ -63,7 +66,10 @@ export type InnerRequestInit<RSchema extends RequestSchema, RMethod extends Requ
           body?: RequestInit['body'];
           form?: SerializableRecord;
         }
-    : { body?: never; form?: never });
+    : { body?: never; form?: never }) &
+  (RSchema['path'] extends z.ZodType
+    ? { path: RequestOption<RSchema['path'], string> }
+    : { path?: never });
 
 export function generateRequest<ZSchema extends RequestSchema, ZMethod extends RequestMethod>(
   url: URL | string,
@@ -71,6 +77,7 @@ export function generateRequest<ZSchema extends RequestSchema, ZMethod extends R
 ): { url: string; input: RequestInit } {
   const {
     schema,
+    path: rawPath,
     params: rawSearchParams,
     headers: rawHeaders,
     body: rawBody,
@@ -79,7 +86,26 @@ export function generateRequest<ZSchema extends RequestSchema, ZMethod extends R
   } = init;
 
   const newInit: RequestInit = restInit;
-  const _url = toURL(url);
+  let _url = toURL(url);
+
+  if (schema?.path) {
+    if (typeof rawPath !== 'object') {
+      throw new ZodRequestError('Path schema is defined but no path was provided.');
+    }
+
+    // Validate path
+    const parsedPath = schema.path.safeParse(rawPath);
+    if (!parsedPath.success) {
+      throw ZodRequestError.fromZodError(parsedPath.error);
+    }
+
+    // Decode the url to use mustache to parse it.
+    // /posts/%7B%7Bid%7D%7D => /posts/{{id}}
+    const href = decodeURI(_url.toString());
+
+    // Use mustache to parse the path.
+    _url = toURL(Mustache.render(href, parsedPath.data));
+  }
 
   if (schema?.searchParams) {
     const parsedSearchParams = parseSearchParams(rawSearchParams, schema.searchParams);

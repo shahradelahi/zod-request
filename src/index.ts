@@ -28,7 +28,7 @@ export type { URLSearchParamsInit } from '@/lib/global-fetch';
 
 // ------------------------------
 
-export { SchemaError, ResponseValidationError } from '@/error';
+export { SchemaError, ZodValidationError } from '@/error';
 
 // ------------------------------
 

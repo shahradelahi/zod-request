@@ -1,4 +1,4 @@
-import { ResponseValidationError, SchemaError } from '@/error';
+import { ZodValidationError, SchemaError } from '@/error';
 import type { GlobalResponse } from '@/lib/global-fetch';
 import { Blob } from 'buffer';
 import { ReadableStream } from 'stream/web';
@@ -53,7 +53,7 @@ export class Response<ZSchema extends ResponseSchema> implements globalThis.Resp
     if (this.schema) {
       const parsedData = this.schema.safeParse(data);
       if (!parsedData.success) {
-        throw new ResponseValidationError(parsedData.error.errors);
+        throw new ZodValidationError(parsedData.error.errors);
       }
 
       return parsedData.data as any;
@@ -77,7 +77,7 @@ export class Response<ZSchema extends ResponseSchema> implements globalThis.Resp
 
       const parsedData = this.schema.safeParse(data);
       if (!parsedData.success) {
-        throw new ResponseValidationError(parsedData.error.errors);
+        throw new ZodValidationError(parsedData.error.errors);
       }
     }
 

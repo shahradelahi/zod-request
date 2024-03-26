@@ -1,4 +1,4 @@
-import { ZodError } from 'zod';
+import { ZodError, ZodIssue } from 'zod';
 
 export class SchemaError implements Error {
   readonly name = 'SchemaError';
@@ -9,10 +9,26 @@ export class SchemaError implements Error {
   ) {}
 }
 
-export class ResponseValidationError extends ZodError {
-  readonly name = 'ResponseValidationError';
+export class ZodValidationError extends ZodError {
+  readonly name = 'ZodValidationError';
 
-  constructor(errors: ZodError['errors']) {
-    super(errors);
+  constructor(errors: ZodIssue | ZodIssue[]) {
+    super(Array.isArray(errors) ? errors : [errors]);
+  }
+
+  static fromZodError(error: ZodError): ZodValidationError {
+    return new ZodValidationError(error.issues);
+  }
+}
+
+export class ZodRequestError extends Error {
+  readonly name = 'ZodRequestError';
+
+  constructor(message: string) {
+    super(message);
+  }
+
+  static fromZodError(error: ZodError): ZodRequestError {
+    return new ZodRequestError(error.message);
   }
 }
