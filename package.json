@@ -1,6 +1,6 @@
 {
   "name": "zod-request",
-  "version": "0.2.0-canary.0",
+  "version": "0.2.0",
   "description": "Validated and Type-safe HTTP requests using Zod",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
