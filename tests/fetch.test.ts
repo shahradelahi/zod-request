@@ -1,6 +1,6 @@
-import { fetch, ZodValidationError, ZodRequestError } from 'zod-request';
 import { AssertionError, expect } from 'chai';
 import { z, ZodError } from 'zod';
+import { fetch, ZodRequestError, ZodValidationError } from 'zod-request';
 
 const todoSchema = z.object({
   userId: z.number(),
@@ -122,6 +122,22 @@ describe('Fetch - Path', () => {
     expect(data).to.have.property('id');
 
     expect(data.id).to.equal(1);
+  });
+
+  it('should fill path template without schema though "path" field', async () => {
+    return new Promise((resolve) => {
+      fetch('https://jsonplaceholder.typicode.com/{{sector}}/{{id}}', {
+        path: {
+          id: 1,
+          sector: 'posts'
+        },
+        refine: (url) => {
+          expect(url.pathname).to.equal('/posts/1');
+          resolve();
+          return { url };
+        }
+      });
+    });
   });
 });
 

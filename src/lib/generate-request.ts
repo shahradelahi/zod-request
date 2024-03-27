@@ -45,7 +45,13 @@ export type ZodRequestInit<RSchema extends RequestSchema, RMethod extends Reques
 > & {
   schema?: RSchema;
   method?: RMethod;
-  refine?: (input: RequestInit) => RequestInit;
+  refine?: (
+    url: URL,
+    input: RequestInit
+  ) => Partial<{
+    url: URL;
+    input: RequestInit;
+  }>;
 } & (RSchema['searchParams'] extends z.ZodType // searchParams and will automatically append the given URL.
     ? { params: RequestSearchParams<RSchema['searchParams']> }
     : { params?: URLSearchParamsInit | undefined }) &
@@ -69,13 +75,13 @@ export type ZodRequestInit<RSchema extends RequestSchema, RMethod extends Reques
         }
     : { body?: never; form?: never }) &
   (RSchema['path'] extends z.ZodType
-    ? { path: RequestOption<RSchema['path'], never> }
-    : { path?: never });
+    ? { path: RequestOption<RSchema['path'], Record<string, string | number>> }
+    : { path?: Record<string, string | number> });
 
 export function generateRequest<ZSchema extends RequestSchema, ZMethod extends RequestMethod>(
   url: URL | string,
   init: ZodRequestInit<ZSchema, ZMethod>
-): { url: string; input: RequestInit } {
+): { url: URL; input: RequestInit } {
   const {
     schema,
     path: rawPath,
@@ -90,15 +96,25 @@ export function generateRequest<ZSchema extends RequestSchema, ZMethod extends R
   const newInit: RequestInit = restInit;
   let _url = toURL(url);
 
-  if (schema?.path) {
-    if (typeof rawPath !== 'object') {
-      throw new ZodRequestError('Path schema is defined but no path was provided.');
-    }
+  ////
+  // Path
+  ////
+
+  if (schema?.path && typeof rawPath !== 'object') {
+    throw new ZodRequestError('Path schema is defined but no path was provided.');
+  }
+
+  if (typeof rawPath === 'object') {
+    let pathData: object = rawPath;
 
     // Validate path
-    const parsedPath = schema.path.safeParse(rawPath);
-    if (!parsedPath.success) {
-      throw ZodRequestError.fromZodError(parsedPath.error);
+    if (schema?.path) {
+      const parsedPath = schema.path.safeParse(rawPath);
+      if (!parsedPath.success) {
+        throw ZodRequestError.fromZodError(parsedPath.error);
+      }
+
+      pathData = parsedPath.data;
     }
 
     // Decode the url to use mustache to parse it.
@@ -106,8 +122,12 @@ export function generateRequest<ZSchema extends RequestSchema, ZMethod extends R
     const href = decodeURI(_url.toString());
 
     // Use mustache to parse the path.
-    _url = toURL(Mustache.render(href, parsedPath.data));
+    _url = toURL(Mustache.render(href, pathData));
   }
+
+  ////
+  // Search Params
+  ////
 
   if (schema?.searchParams) {
     const parsedSearchParams = parseSearchParams(rawSearchParams, schema.searchParams);
@@ -116,6 +136,10 @@ export function generateRequest<ZSchema extends RequestSchema, ZMethod extends R
       _url.searchParams.set(key, value);
     }
   }
+
+  ////
+  // Headers
+  ////
 
   if (schema?.headers) {
     if (typeof rawHeaders === 'undefined') {
@@ -130,6 +154,10 @@ export function generateRequest<ZSchema extends RequestSchema, ZMethod extends R
       newInit.headers = removeUndefined(rawHeaders) as Record<string, any>;
     }
   }
+
+  ////
+  // Body
+  ////
 
   const RequestHasBody = rawBody || rawForm;
 
@@ -172,9 +200,17 @@ export function generateRequest<ZSchema extends RequestSchema, ZMethod extends R
     newInit.body = finalizedBody as RequestInit['body'];
   }
 
+  if (refine) {
+    const refined = refine(_url, newInit);
+    return {
+      url: refined?.url ?? _url,
+      input: refined?.input ?? newInit
+    };
+  }
+
   return {
-    url: _url.toString(),
-    input: refine ? refine(newInit) : newInit
+    url: _url,
+    input: newInit
   };
 }
 
