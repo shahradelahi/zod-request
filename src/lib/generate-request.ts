@@ -32,19 +32,20 @@ export type RequestMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD'
 type MethodHasBody<M> = M extends 'POST' | 'PUT' | 'PATCH' ? true : false;
 
 export type RequestSchema = {
-  path?: z.ZodRecord<any> | z.ZodObject<any>;
+  path?: z.ZodObject<any>;
   searchParams?: ZodAnyObject;
   headers?: ZodAnyObject;
   response?: z.ZodType;
   body?: BodySchema;
 };
 
-export type InnerRequestInit<RSchema extends RequestSchema, RMethod extends RequestMethod> = Omit<
+export type ZodRequestInit<RSchema extends RequestSchema, RMethod extends RequestMethod> = Omit<
   RequestInit,
   'url' | 'headers' | 'body' | 'method'
 > & {
   schema?: RSchema;
   method?: RMethod;
+  refine?: (input: RequestInit) => RequestInit;
 } & (RSchema['searchParams'] extends z.ZodType // searchParams and will automatically append the given URL.
     ? { params: RequestSearchParams<RSchema['searchParams']> }
     : { params?: URLSearchParamsInit | undefined }) &
@@ -68,12 +69,12 @@ export type InnerRequestInit<RSchema extends RequestSchema, RMethod extends Requ
         }
     : { body?: never; form?: never }) &
   (RSchema['path'] extends z.ZodType
-    ? { path: RequestOption<RSchema['path'], string> }
+    ? { path: RequestOption<RSchema['path'], never> }
     : { path?: never });
 
 export function generateRequest<ZSchema extends RequestSchema, ZMethod extends RequestMethod>(
   url: URL | string,
-  init: InnerRequestInit<ZSchema, ZMethod>
+  init: ZodRequestInit<ZSchema, ZMethod>
 ): { url: string; input: RequestInit } {
   const {
     schema,
@@ -82,6 +83,7 @@ export function generateRequest<ZSchema extends RequestSchema, ZMethod extends R
     headers: rawHeaders,
     body: rawBody,
     form: rawForm,
+    refine,
     ...restInit
   } = init;
 
@@ -172,7 +174,7 @@ export function generateRequest<ZSchema extends RequestSchema, ZMethod extends R
 
   return {
     url: _url.toString(),
-    input: newInit
+    input: refine ? refine(newInit) : newInit
   };
 }
 
@@ -184,7 +186,7 @@ function requestMethodCanHaveBody(method: RequestMethod) {
   return ['POST', 'PUT', 'PATCH'].includes(method);
 }
 
-function generateFormDataFromInit(init: Omit<InnerRequestInit<any, any>['form'], never>) {
+function generateFormDataFromInit(init: Omit<ZodRequestInit<any, any>['form'], never>) {
   if (typeof init === 'undefined') {
     throw new ZodRequestError('Form is required.');
   }
@@ -210,7 +212,7 @@ function generateFormDataFromInit(init: Omit<InnerRequestInit<any, any>['form'],
 }
 
 function parseSearchParams(
-  rawSearchParams: InnerRequestInit<any, any>['params'],
+  rawSearchParams: ZodRequestInit<any, any>['params'],
   schema: ZodAnyObject
 ) {
   const searchParams = schema.parse(rawSearchParams);
@@ -225,7 +227,7 @@ function parseSearchParams(
 }
 
 function parseHeaders(
-  rawHeaders: Omit<InnerRequestInit<any, any>['headers'], never>,
+  rawHeaders: Omit<ZodRequestInit<any, any>['headers'], never>,
   schema: ZodAnyObject
 ) {
   const noUndefined = removeUndefined(rawHeaders);

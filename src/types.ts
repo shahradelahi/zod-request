@@ -1,4 +1,4 @@
-import type { InnerRequestInit, RequestMethod, RequestSchema } from '@/lib/generate-request';
+import type { ZodRequestInit } from '@/lib/generate-request';
 import type { z } from 'zod';
 
 // ---------------------
@@ -18,11 +18,6 @@ export type SerializableRecord = Record<string, SerializableValue>;
 export type Serializable = SerializableValue | SerializableArray | SerializableRecord;
 
 // ---------------------
-
-export type ZodRequestInit<
-  ZSchema extends RequestSchema,
-  RMethod extends RequestMethod
-> = InnerRequestInit<ZSchema, RMethod>;
 
 /**
  * Alias for Zod Request Init

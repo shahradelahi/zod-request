@@ -1,6 +1,10 @@
-import { generateRequest, RequestMethod, RequestSchema } from '@/lib/generate-request';
+import {
+  generateRequest,
+  RequestMethod,
+  RequestSchema,
+  ZodRequestInit
+} from '@/lib/generate-request';
 import { ZodResponse } from '@/response';
-import type { ZodRequestInit } from '@/types';
 import { getGlobalFetch } from './lib/global-fetch';
 
 // ------------------------------
