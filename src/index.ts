@@ -33,7 +33,8 @@ export type { ZodRequestInit, RequestSchema, RequestMethod };
 export type { RequestInit } from '@/types';
 
 export { ZodResponse, ZodResponse as Response };
-export type { URLSearchParamsInit } from '@/lib/global-fetch';
+export { getGlobalFetch } from '@/lib/global-fetch';
+export type { URLSearchParamsInit, Fetch } from '@/lib/global-fetch';
 
 export { generateRequest };
 

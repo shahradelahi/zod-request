@@ -1,7 +1,28 @@
-const GLOBAL_FETCH = globalThis?.fetch ?? fetch;
+let GLOBAL_FETCH: Fetch = globalThis?.fetch ?? fetch;
+
+export type Fetch = typeof fetch | (typeof globalThis)['fetch'];
 
 export function getGlobalFetch() {
   return GLOBAL_FETCH;
+}
+
+/**
+ * Sets the global fetch function to the specified fetcher.
+ *
+ * NOTE: This only affects the `zod-request` package and not it actually wont be
+ * used anywhere else.
+ *
+ * Example:
+ *
+ * ```javascript
+ * import { setGlobalFetch } from 'zod-request';
+ * import fetch from 'node-fetch';
+ *
+ * setGlobalFetch(fetch);
+ * ```
+ */
+export function setGlobalFetch(fetcher: Fetch) {
+  GLOBAL_FETCH = fetcher;
 }
 
 export type URLSearchParamsInit =
