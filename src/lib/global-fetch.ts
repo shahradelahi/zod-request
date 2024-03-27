@@ -1,6 +1,6 @@
-let GLOBAL_FETCH: Fetch = globalThis?.fetch ?? fetch;
+let GLOBAL_FETCH: Fetch = fetch ?? globalThis?.fetch;
 
-export type Fetch = typeof fetch | (typeof globalThis)['fetch'];
+export type Fetch = (typeof globalThis)['fetch'] | typeof fetch;
 
 export function getGlobalFetch() {
   return GLOBAL_FETCH;
@@ -9,8 +9,7 @@ export function getGlobalFetch() {
 /**
  * Sets the global fetch function to the specified fetcher.
  *
- * NOTE: This only affects the `zod-request` package and not it actually wont be
- * used anywhere else.
+ * NOTE: This only affects the `zod-request` package, and it won't actually be used anywhere else.
  *
  * Example:
  *
@@ -21,7 +20,7 @@ export function getGlobalFetch() {
  * setGlobalFetch(fetch);
  * ```
  */
-export function setGlobalFetch(fetcher: Fetch) {
+export function setGlobalFetch(fetcher: any) {
   GLOBAL_FETCH = fetcher;
 }
 
