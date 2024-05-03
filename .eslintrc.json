@@ -13,5 +13,6 @@
     "no-console": "error",
     "@typescript-eslint/semi": "off",
     "@typescript-eslint/no-explicit-any": "off"
-  }
+  },
+  "ignorePatterns": ["dist"]
 }
