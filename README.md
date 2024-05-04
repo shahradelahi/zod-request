@@ -1,9 +1,11 @@
 # zod-request
 
-> Validated and Type-safe HTTP requests using Zod
-
 [![npm](https://img.shields.io/npm/v/zod-request)](https://www.npmjs.com/package/zod-request)
 [![install size](https://packagephobia.com/badge?p=zod-request)](https://packagephobia.com/result?p=zod-request)
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://choosealicense.com/licenses/mit/)
+[![GitHub stars](https://img.shields.io/github/stars/shahradelahi/zod-request?style=social)](https://github.com/shahradelahi/zod-request/stargazers)
+
+> Validated and Type-safe HTTP requests using Zod
 
 ## Notable Features
 
@@ -32,7 +34,7 @@ const todoSchema = z.object({
 const response = await fetch('https://jsonplaceholder.typicode.com/todos', {
   method: 'GET',
   headers: {
-    'Content-Type': 'application/json'
+    Accept: 'application/json'
   },
   schema: {
     response: z.array(todoSchema)
@@ -99,7 +101,7 @@ console.log(headers); // { 'Content-Type': 'multipart/form-data; boundary=---- .
 const response = await fetch('https://jsonplaceholder.typicode.com/todos', {
   method: 'GET',
   headers: {
-    'Content-Type': 'application/json'
+    Accept: 'application/json'
   }
 });
 
@@ -114,6 +116,7 @@ console.log(data.length); // 200
 ## Relevant Links
 
 - [Zod Documentation](https://zod.dev/)
+- [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)
 - [Transform JSON to Zod Schema](https://transform.tools/json-to-zod)
 
 ## License
