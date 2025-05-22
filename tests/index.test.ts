@@ -1,6 +1,6 @@
-import { fetch } from 'zod-request';
 import { expect } from 'chai';
 import { z } from 'zod';
+import { fetch } from 'zod-request';
 
 describe('Docs', () => {
   it('#1', async () => {

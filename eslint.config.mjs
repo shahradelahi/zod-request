@@ -3,7 +3,7 @@ import globals from 'globals';
 
 export default defineConfig(
   {
-    ignores: ['dist/**'],
+    ignores: ['dist/**']
   },
 
   {
@@ -11,11 +11,11 @@ export default defineConfig(
       ecmaVersion: 'latest',
       sourceType: 'module',
       globals: {
-        ...globals.node,
-      },
+        ...globals.node
+      }
     },
     rules: {
-      'no-console': 'error',
-    },
+      'no-console': 'error'
+    }
   }
 );

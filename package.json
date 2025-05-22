@@ -2,12 +2,25 @@
   "name": "zod-request",
   "version": "0.2.2",
   "description": "Validated and Type-safe HTTP requests using Zod",
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
-  "files": [
-    "dist/**"
+  "keywords": [
+    "zod",
+    "request",
+    "http",
+    "fetch",
+    "browser",
+    "node",
+    "type-safe"
   ],
+  "homepage": "https://github.com/shahradelahi/zod-request#readme",
+  "bugs": {
+    "url": "https://github.com/shahradelahi/zod-request/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/shahradelahi/zod-request.git"
+  },
+  "license": "MIT",
+  "author": "Shahrad Elahi <shahrad@litehex.com> (https://github.com/shahradelahi)",
   "exports": {
     ".": {
       "import": {
@@ -20,17 +33,22 @@
       }
     }
   },
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/**"
+  ],
   "scripts": {
     "build": "tsup",
-    "test": "mocha \"**/*.test.ts\"",
-    "type-check": "tsc --noEmit",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "lint": "pnpm type-check & eslint .",
     "lint:fix": "eslint --fix .",
-    "format:check": "prettier --check .",
-    "format": "prettier --write .",
-    "prepublishOnly": "pnpm build && pnpm test && pnpm format:check && pnpm lint"
+    "prepublishOnly": "pnpm build && pnpm test && pnpm format:check && pnpm lint",
+    "test": "mocha \"**/*.test.ts\"",
+    "type-check": "tsc --noEmit"
   },
-  "packageManager": "pnpm@8.15.0",
   "dependencies": {
     "mustache": "^4.2.0",
     "zod": "^3.23.6"
@@ -52,27 +70,8 @@
     "typescript": "^5.4.5",
     "undici": "^6.15.0"
   },
-  "prettier": "@shahrad/prettier-config",
+  "packageManager": "pnpm@8.15.0",
   "engines": {
     "node": ">=18.0.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/shahradelahi/zod-request.git"
-  },
-  "keywords": [
-    "zod",
-    "request",
-    "http",
-    "fetch",
-    "browser",
-    "node",
-    "type-safe"
-  ],
-  "author": "Shahrad Elahi <shahrad@litehex.com> (https://github.com/shahradelahi)",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/shahradelahi/zod-request/issues"
-  },
-  "homepage": "https://github.com/shahradelahi/zod-request#readme"
+  }
 }
