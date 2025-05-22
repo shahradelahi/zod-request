@@ -37,6 +37,7 @@
   },
   "devDependencies": {
     "@shahrad/eslint-config": "^1.0.0",
+    "@shahrad/prettier-config": "^1.2.2",
     "@types/chai": "^4.3.15",
     "@types/mocha": "^10.0.6",
     "@types/mustache": "^4.2.5",
@@ -45,12 +46,13 @@
     "eslint": "^9.27.0",
     "globals": "^16.1.0",
     "mocha": "^10.4.0",
-    "prettier": "^3.2.5",
+    "prettier": "^3.5.3",
     "tsup": "^8.0.2",
     "tsx": "^4.8.2",
     "typescript": "^5.4.5",
     "undici": "^6.15.0"
   },
+  "prettier": "@shahrad/prettier-config",
   "engines": {
     "node": ">=18.0.0"
   },
