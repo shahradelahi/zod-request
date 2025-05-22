@@ -21,8 +21,8 @@ npm install zod-request zod
 ## 📖 Usage
 
 ```typescript
-import { fetch } from 'zod-request';
 import { z } from 'zod';
+import { fetch } from 'zod-request';
 
 const todoSchema = z.object({
   userId: z.number(),
@@ -64,8 +64,8 @@ suggestions.
   <summary>Send a Post request with a FormData body</summary>
 
 ```typescript
-import { fetch } from 'zod-request';
 import { z } from 'zod';
+import { fetch } from 'zod-request';
 
 const schema = {
   body: z.object({

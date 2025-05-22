@@ -1,6 +1,7 @@
+import { z } from 'zod';
+
 import { ZodRequestError, ZodValidationError } from '@/error';
 import type { GlobalResponse } from '@/lib/global-fetch';
-import { z } from 'zod';
 
 export type ResponseSchema = z.ZodType | undefined;
 

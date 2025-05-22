@@ -1,5 +1,6 @@
-import type { ZodRequestInit } from '@/lib/generate-request';
 import type { z } from 'zod';
+
+import type { ZodRequestInit } from '@/lib/generate-request';
 
 // ---------------------
 

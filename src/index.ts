@@ -4,8 +4,8 @@ import {
   RequestSchema,
   ZodRequestInit
 } from '@/lib/generate-request';
+import { getGlobalFetch } from '@/lib/global-fetch';
 import { ZodResponse } from '@/response';
-import { getGlobalFetch } from './lib/global-fetch';
 
 // ------------------------------
 
