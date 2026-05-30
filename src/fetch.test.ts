@@ -145,7 +145,7 @@ describe('Fetch - FormData', () => {
       method: 'POST',
       body: formData,
       schema: {
-        response: z.object({
+        response: z.looseObject({
           headers: z.record(z.string(), z.string()),
           files: z.record(z.string(), z.string()),
           form: z.record(z.string(), z.any())
@@ -175,7 +175,7 @@ describe('Fetch - FormData', () => {
     try {
       const resp = await fetch('https://httpbun.com/post', {
         schema: {
-          response: z.object({
+          response: z.looseObject({
             headers: z.record(z.string(), z.string()),
             files: z.record(z.string(), z.string()),
             form: z.record(z.string(), z.any())
