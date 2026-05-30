@@ -134,7 +134,9 @@ export function generateRequest<ZSchema extends RequestSchema, ZMethod extends R
     const parsedSearchParams = parseSearchParams(rawSearchParams, schema.searchParams);
 
     for (const [key, value] of Object.entries(parsedSearchParams)) {
-      _url.searchParams.set(key, value);
+      if (typeof value === 'string') {
+        _url.searchParams.set(key, value);
+      }
     }
   }
 
@@ -181,14 +183,11 @@ export function generateRequest<ZSchema extends RequestSchema, ZMethod extends R
     }
 
     if (rawBody) {
-      const bodyInit = schema?.body ? schema.body.parse(rawBody) : rawBody;
-      finalizedBody = bodyInit;
+      finalizedBody = schema?.body ? schema.body.parse(rawBody) : rawBody;
     }
 
-    // If header content-type is "application/json" and body is an object, then stringify the body.
-    const contentType = Object.keys(newInit.headers || {}).find(
-      (header) => header.toLowerCase() === 'content-type'
-    );
+    const hs = new Headers(newInit.headers || {});
+    const contentType = hs.get('content-type');
 
     if (
       contentType &&
@@ -223,7 +222,7 @@ function requestMethodCanHaveBody(method: RequestMethod) {
   return ['POST', 'PUT', 'PATCH'].includes(method);
 }
 
-function generateFormDataFromInit(init: Omit<ZodRequestInit<any, any>['form'], never>) {
+function generateFormDataFromInit(init: unknown) {
   if (typeof init === 'undefined') {
     throw new ZodRequestError('Form is required.');
   }
@@ -235,7 +234,7 @@ function generateFormDataFromInit(init: Omit<ZodRequestInit<any, any>['form'], n
   }
 
   // Removing the undefined values from the form because it will automatically cast to string.
-  const noUndefined = removeUndefined(init);
+  const noUndefined = removeUndefined(init!);
   const out = new FormData();
 
   for (const [key, value] of Object.entries(noUndefined)) {
@@ -257,7 +256,9 @@ function parseSearchParams(
   const outSearchParams: Record<string, string> = {};
 
   for (const [key, value] of Object.entries(searchParams)) {
-    outSearchParams[key] = value;
+    if (typeof value === 'string') {
+      outSearchParams[key] = value;
+    }
   }
 
   return outSearchParams;
@@ -269,10 +270,10 @@ function parseHeaders(
 ) {
   const noUndefined = removeUndefined(rawHeaders);
   const headersInit = schema.parse(noUndefined);
-  const out: Record<string, string> = {};
+  const out: HeadersInit = {};
 
   for (const [key, value] of Object.entries(headersInit)) {
-    out[key] = value;
+    out[key] = String(value);
   }
 
   return out;
