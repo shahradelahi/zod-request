@@ -21,57 +21,54 @@
   },
   "license": "MIT",
   "author": "Shahrad Elahi <shahrad@litehex.com> (https://github.com/shahradelahi)",
+  "type": "module",
   "exports": {
     ".": {
-      "import": {
-        "types": "./dist/index.d.mts",
-        "default": "./dist/index.mjs"
-      },
-      "require": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/index.js"
-      }
+      "import": "./dist/index.js",
+      "default": "./dist/index.cjs"
     }
   },
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
-    "dist/**"
+    "dist/**",
+    "!dist/**/*.d.cts"
   ],
   "scripts": {
     "build": "tsup",
+    "ci:publish": "changeset publish",
+    "clean": "git clean -dfx node_modules dist .tsbuildinfo",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "lint": "pnpm type-check & eslint .",
+    "lint": "pnpm typecheck & eslint .",
     "lint:fix": "eslint --fix .",
     "prepublishOnly": "pnpm build && pnpm test && pnpm format:check && pnpm lint",
-    "test": "mocha \"**/*.test.ts\"",
-    "type-check": "tsc --noEmit"
+    "test": "vitest --run",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "mustache": "^4.2.0",
-    "zod": "^3.23.6"
+    "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@shahrad/eslint-config": "^1.0.0",
+    "@changesets/cli": "^2.31.0",
+    "@shahrad/eslint-config": "^1.0.1",
     "@shahrad/prettier-config": "^1.2.2",
-    "@types/chai": "^4.3.15",
-    "@types/mocha": "^10.0.6",
-    "@types/mustache": "^4.2.5",
-    "@types/node": "^20.12.8",
-    "chai": "^5.1.0",
-    "eslint": "^9.27.0",
-    "globals": "^16.1.0",
-    "mocha": "^10.4.0",
-    "prettier": "^3.5.3",
-    "tsup": "^8.0.2",
-    "tsx": "^4.8.2",
-    "typescript": "^5.4.5",
-    "undici": "^6.15.0"
+    "@shahrad/tsconfig": "^1.2.0",
+    "@types/mustache": "^4.2.6",
+    "@types/node": "^25.2.2",
+    "eslint": "^9.39.4",
+    "globals": "^17.3.0",
+    "prettier": "^3.8.1",
+    "tsup": "^8.5.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
   },
-  "packageManager": "pnpm@8.15.0",
-  "engines": {
-    "node": ">=18.0.0"
+  "packageManager": "pnpm@10.34.1+sha512.b58fbde6dca66a929538021581f648b4570b6ca19b18e7cbd7f2c07a7b24454155388dacdf08f2af3678e88a6d1fe04f9d609df24bf51735a060ea041b374ab7",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   }
 }

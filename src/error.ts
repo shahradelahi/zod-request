@@ -1,7 +1,7 @@
 import { ZodError, ZodIssue } from 'zod';
 
 export class ZodValidationError extends ZodError {
-  readonly name = 'ZodValidationError';
+  override readonly name = 'ZodValidationError';
 
   constructor(errors: ZodIssue | ZodIssue[]) {
     super(Array.isArray(errors) ? errors : [errors]);
@@ -13,7 +13,7 @@ export class ZodValidationError extends ZodError {
 }
 
 export class ZodRequestError extends Error {
-  readonly name = 'ZodRequestError';
+  override readonly name = 'ZodRequestError';
 
   constructor(message: string) {
     super(message);

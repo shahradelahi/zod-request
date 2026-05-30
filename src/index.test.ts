@@ -1,6 +1,7 @@
-import { expect } from 'chai';
+import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
-import { fetch } from 'zod-request';
+
+import { fetch } from '.';
 
 describe('Docs', () => {
   it('#1', async () => {
@@ -35,8 +36,8 @@ describe('Docs', () => {
         age: z.number()
       }),
       response: z.object({
-        headers: z.record(z.string()),
-        form: z.record(z.any())
+        headers: z.record(z.string(), z.string()),
+        form: z.record(z.string(), z.any())
       })
     };
 
@@ -63,10 +64,8 @@ describe('Docs', () => {
     expect(headers['Content-Type']).to.include('multipart/form-data');
 
     const form = data.form!;
-    expect(form.name).to.be.a('string');
-    expect(form.name).to.equal('John');
-    expect(form.age).to.be.a('string');
-    expect(form.age).to.equal('20');
+    expect(form['name']).to.be.a('string').to.equal('John');
+    expect(form['age']).to.be.a('string').to.equal('20');
   });
 
   it('#3 - Get Unsafe response body (Skip validation)', async () => {

@@ -2,47 +2,44 @@ name: Release Package
 
 on:
   push:
-    tags:
-      - v*
+    branches:
+      - main
 
 jobs:
-  create-github-release:
+  release:
+    if: github.repository == 'shahradelahi/zod-request'
+    name: Build & Publish Release
+    runs-on: ubuntu-latest
     permissions:
       contents: write
-    runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')
-    steps:
-      - name: Calculate release name
-        run: |
-          GITHUB_REF=${{ github.ref }}
-          RELEASE_NAME=${GITHUB_REF#"refs/tags/"}
-          echo "RELEASE_NAME=${RELEASE_NAME}" >> $GITHUB_ENV
-
-      - name: Publish release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: ${{ env.RELEASE_NAME }}
-          draft: false
-          prerelease: false
-
-  publish-npm-release:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
       id-token: write
+      pull-requests: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout Repo
+        uses: actions/checkout@v4
         with:
-          node-version: 22
-          cache: 'pnpm'
-          registry-url: 'https://registry.npmjs.org'
+          fetch-depth: 0
 
-      - run: pnpm install --frozen-lockfile
-      - run: npm publish --provenance --access public
+      - name: Use PNPM
+        uses: pnpm/action-setup@v4
+
+      - name: Use Node v24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Create Release Pull Request or Publish
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          commit: 'chore(release): version package'
+          title: 'chore(release): version package'
+          publish: pnpm ci:publish
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true

@@ -6,7 +6,7 @@ import type { ZodRequestInit } from '@/lib/generate-request';
 
 export type ZodAnyObject = z.ZodObject<any>;
 
-export type ZodFormData = z.ZodType<FormData, z.ZodTypeDef, FormData>;
+export type ZodFormData = z.ZodType<FormData>;
 
 // ---------------------
 

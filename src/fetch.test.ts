@@ -1,6 +1,7 @@
-import { AssertionError, expect } from 'chai';
+import { describe, expect, it } from 'vitest';
 import { z, ZodError } from 'zod';
-import { fetch, ZodRequestError, ZodValidationError } from 'zod-request';
+
+import { fetch, ZodRequestError, ZodValidationError } from '.';
 
 const todoSchema = z.object({
   userId: z.number(),
@@ -65,15 +66,6 @@ describe('Fetch', () => {
   it('should parse union schema', async () => {
     const resp = await fetch('https://www.virustotal.com/api/v3/files/{id}', {
       schema: {
-        // response: z.object({
-        //   error: z
-        //     .object({
-        //       code: z.number(),
-        //       message: z.string()
-        //     })
-        //     .optional(),
-        //   data: z.record(z.any()).optional()
-        // })
         response: z.union([
           // error
           z.object({
@@ -124,8 +116,8 @@ describe('Fetch - Path', () => {
     expect(data.id).to.equal(1);
   });
 
-  it('should fill path template without schema though "path" field', async () => {
-    return new Promise((resolve) => {
+  it('should fill path template without schema though "path" field', () => {
+    return new Promise<void>((resolve) => {
       fetch('https://jsonplaceholder.typicode.com/{{sector}}/{{id}}', {
         path: {
           id: 1,
@@ -149,14 +141,14 @@ describe('Fetch - FormData', () => {
     const blob = new Blob(['Hello World'], { type: 'text/plain' });
     formData.append('file', blob, 'hello.txt');
 
-    const resp = await fetch('https://httpbin.org/post', {
+    const resp = await fetch('https://httpbun.com/post', {
       method: 'POST',
       body: formData,
       schema: {
         response: z.object({
-          headers: z.record(z.string()),
-          files: z.record(z.string()),
-          form: z.record(z.any())
+          headers: z.record(z.string(), z.string()),
+          files: z.record(z.string(), z.string()),
+          form: z.record(z.string(), z.any())
         })
       }
     });
@@ -172,21 +164,21 @@ describe('Fetch - FormData', () => {
 
     expect(form).to.be.an('object');
     expect(form).to.have.property('name');
-    expect(form.name).to.equal('John');
+    expect(form['name']).to.equal('John');
 
     expect(files).to.be.an('object');
     expect(files).to.have.property('file');
-    expect(files.file).to.equal('Hello World');
+    expect(files['file']).to.equal('Hello World');
   });
 
   it('should throw error because we have schema for body but no body', async () => {
     try {
-      const resp = await fetch('https://httpbin.org/post', {
+      const resp = await fetch('https://httpbun.com/post', {
         schema: {
           response: z.object({
-            headers: z.record(z.string()),
-            files: z.record(z.string()),
-            form: z.record(z.any())
+            headers: z.record(z.string(), z.string()),
+            files: z.record(z.string(), z.string()),
+            form: z.record(z.string(), z.any())
           }),
           body: z.instanceof(FormData)
         }
@@ -196,10 +188,6 @@ describe('Fetch - FormData', () => {
 
       expect.fail('Should have thrown an error.');
     } catch (err: any) {
-      if (err instanceof AssertionError) {
-        throw err;
-      }
-
       expect(err).to.instanceOf(Error);
       expect(err.message).to.equal('Body schema is defined but no body was provided.');
     }
@@ -210,13 +198,13 @@ describe('Fetch - Headers', () => {
   it('should have optional headers', async () => {
     // This means skip header schema and pass any headers
 
-    const resp = await fetch('https://httpbin.org/get', {
+    const resp = await fetch('https://httpbun.com/get', {
       headers: {
         'X-Custom-Header': 'value'
       },
       schema: {
         response: z.object({
-          headers: z.record(z.string())
+          headers: z.record(z.string(), z.string())
         })
       }
     });
@@ -231,13 +219,13 @@ describe('Fetch - Headers', () => {
   });
 
   it('should validate headers and work', async () => {
-    const resp = await fetch('https://httpbin.org/get', {
+    const resp = await fetch('https://httpbun.com/get', {
       headers: {
         'X-Custom-Header': 'value'
       },
       schema: {
         response: z.object({
-          headers: z.record(z.string())
+          headers: z.record(z.string(), z.string())
         }),
         headers: z.object({
           'X-Custom-Header': z.string()
@@ -257,10 +245,10 @@ describe('Fetch - Headers', () => {
   it('should throw error because we have schema for headers but no headers', async () => {
     try {
       // @ts-expect-error @ts-expect-error
-      const resp = await fetch('https://httpbin.org/get', {
+      const resp = await fetch('https://httpbun.com/get', {
         schema: {
           response: z.object({
-            headers: z.record(z.string())
+            headers: z.record(z.string(), z.string())
           }),
           headers: z.object({
             'X-Custom-Header': z.string()
@@ -272,10 +260,6 @@ describe('Fetch - Headers', () => {
 
       expect.fail('Should have thrown an error.');
     } catch (err: any) {
-      if (err instanceof AssertionError) {
-        throw err;
-      }
-
       expect(err).to.instanceOf(Error);
       expect(err.message).to.equal('Headers schema is defined but no headers were provided.');
     }
@@ -283,14 +267,14 @@ describe('Fetch - Headers', () => {
 
   it('should throw error because headers do not match schema', async () => {
     try {
-      const resp = await fetch('https://httpbin.org/get', {
+      const resp = await fetch('https://httpbun.com/get', {
         headers: {
           // @ts-expect-error @ts-expect-error
           'X-Custom-Header': 123
         },
         schema: {
           response: z.object({
-            headers: z.record(z.string())
+            headers: z.record(z.string(), z.string())
           }),
           headers: z.object({
             'X-Custom-Header': z.string()
@@ -302,22 +286,18 @@ describe('Fetch - Headers', () => {
 
       expect.fail('Should have thrown an error.');
     } catch (err: any) {
-      if (err instanceof AssertionError) {
-        throw err;
-      }
-
       expect(err).to.instanceOf(ZodError);
     }
   });
 
   it('should not add optional headers as undefined', async () => {
-    const resp = await fetch('https://httpbin.org/get', {
+    const resp = await fetch('https://httpbun.com/get', {
       headers: {
         'X-Custom-Header': 'value'
       },
       schema: {
         response: z.object({
-          headers: z.record(z.string())
+          headers: z.record(z.string(), z.string())
         }),
         headers: z.object({
           'X-Custom-Header': z.string(),
@@ -350,10 +330,6 @@ describe('Fetch - Error', () => {
 
       expect.fail('Should have thrown an error.');
     } catch (err: any) {
-      if (err instanceof AssertionError) {
-        throw err;
-      }
-
       expect(err).to.instanceOf(ZodValidationError);
     }
   });
@@ -370,10 +346,6 @@ describe('Fetch - Error', () => {
 
       expect.fail('Should have thrown an error.');
     } catch (err: any) {
-      if (err instanceof AssertionError) {
-        throw err;
-      }
-
       expect(err).to.instanceOf(ZodRequestError);
       expect(err.message).to.equal('Response schema must be a string.');
     }

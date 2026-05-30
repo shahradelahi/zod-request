@@ -5,13 +5,13 @@ export default defineConfig(
   {
     ignores: ['dist/**']
   },
-
   {
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',
       globals: {
-        ...globals.node
+        ...globals.node,
+        ...globals.browser
       }
     },
     rules: {
