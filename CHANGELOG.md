@@ -1,5 +1,11 @@
 # zod-request
 
+## 0.2.3
+
+### Patch Changes
+
+- 8a54ad1: Widened Zod peer dependency range to fully support both Zod v3 and v4 simultaneously, utilizing backward-compatible object passthrough configuration in tests.
+
 ## 1.0.0
 
 ### Major Changes
