@@ -183,14 +183,11 @@ export function generateRequest<ZSchema extends RequestSchema, ZMethod extends R
     }
 
     if (rawBody) {
-      const bodyInit = schema?.body ? schema.body.parse(rawBody) : rawBody;
-      finalizedBody = bodyInit;
+      finalizedBody = schema?.body ? schema.body.parse(rawBody) : rawBody;
     }
 
-    // If header content-type is "application/json" and body is an object, then stringify the body.
-    const contentType = Object.keys(newInit.headers || {}).find(
-      (header) => header.toLowerCase() === 'content-type'
-    );
+    const hs = new Headers(newInit.headers || {});
+    const contentType = hs.get('content-type');
 
     if (
       contentType &&

@@ -1,7 +1,7 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
 
-import { fetch } from '.';
+import { fetch, setGlobalFetch } from '.';
 
 describe('Docs', () => {
   it('#1', async () => {
@@ -11,6 +11,20 @@ describe('Docs', () => {
       title: z.string(),
       completed: z.boolean()
     });
+
+    const mockFetch = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify(
+          Array.from({ length: 200 }, (_, i) => ({
+            userId: 1,
+            id: i + 1,
+            title: `Todo ${i + 1}`,
+            completed: false
+          }))
+        )
+      )
+    );
+    setGlobalFetch(mockFetch);
 
     const response = await fetch('https://jsonplaceholder.typicode.com/todos', {
       method: 'GET',
@@ -22,11 +36,16 @@ describe('Docs', () => {
       }
     });
 
-    // type of data is [{ userId: number, id: number, title: string, completed: boolean }, ...]
     const data = await response.json();
 
     expect(data).to.be.an('array');
     expect(data.length).to.equal(200);
+    expect(mockFetch).toHaveBeenCalledWith(new URL('https://jsonplaceholder.typicode.com/todos'), {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
   });
 
   it('#2 - Post FormData', async () => {
@@ -41,9 +60,27 @@ describe('Docs', () => {
       })
     };
 
-    const response = await fetch('https://httpbin.org/post', {
+    const mockFetch = vi.fn().mockImplementation(async (_url, init) => {
+      // Re-construct form object from FormData body
+      const form: Record<string, string> = {};
+      if (init.body instanceof FormData) {
+        init.body.forEach((val: any, key: string | number) => {
+          form[key] = String(val);
+        });
+      }
+      return new Response(
+        JSON.stringify({
+          headers: {
+            'Content-Type': 'multipart/form-data; boundary=...'
+          },
+          form
+        })
+      );
+    });
+    setGlobalFetch(mockFetch);
+
+    const response = await fetch('https://httpbun.com/post', {
       method: 'POST',
-      // We not need to set Content-Type, it will automatically set to 'multipart/form-data' and its boundary
       form: {
         name: 'John',
         age: 20
@@ -52,7 +89,6 @@ describe('Docs', () => {
     });
 
     const data = await response.json();
-    // console.log(data); // { form: { name: 'John', age: '20' } }
 
     expect(data).to.be.an('object');
     expect(data.headers).to.be.an('object');
@@ -69,6 +105,17 @@ describe('Docs', () => {
   });
 
   it('#3 - Get Unsafe response body (Skip validation)', async () => {
+    const mockFetch = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify(
+          Array.from({ length: 200 }, (_, i) => ({
+            id: i + 1
+          }))
+        )
+      )
+    );
+    setGlobalFetch(mockFetch);
+
     const response = await fetch('https://jsonplaceholder.typicode.com/todos', {
       method: 'GET',
       headers: {
