@@ -35,7 +35,7 @@ describe('Docs', () => {
         name: z.string(),
         age: z.number()
       }),
-      response: z.object({
+      response: z.looseObject({
         headers: z.record(z.string(), z.string()),
         form: z.record(z.string(), z.any())
       })
