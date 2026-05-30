@@ -54,10 +54,12 @@ describe('Docs', () => {
         name: z.string(),
         age: z.number()
       }),
-      response: z.looseObject({
-        headers: z.record(z.string(), z.string()),
-        form: z.record(z.string(), z.any())
-      })
+      response: z
+        .object({
+          headers: z.record(z.string(), z.string()),
+          form: z.record(z.string(), z.any())
+        })
+        .passthrough()
     };
 
     const mockFetch = vi.fn().mockImplementation(async (_url, init) => {
