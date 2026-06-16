@@ -1,6 +1,6 @@
 {
   "name": "zod-request",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Validated and Type-safe HTTP requests using Zod",
   "keywords": [
     "zod",
