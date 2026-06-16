@@ -1,5 +1,11 @@
 # zod-request
 
+## 1.0.2
+
+### Patch Changes
+
+- 06f5754: refactor: replace mustache template renderer with @se-oss/template
+
 ## 1.0.1
 
 ### Patch Changes
