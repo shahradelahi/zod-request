@@ -48,14 +48,13 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "mustache": "^4.2.0"
+    "@se-oss/template": "^1.0.0"
   },
   "devDependencies": {
     "@changesets/cli": "^2.31.0",
     "@shahrad/eslint-config": "^1.1.0",
     "@shahrad/prettier-config": "^1.2.2",
     "@shahrad/tsconfig": "^1.2.0",
-    "@types/mustache": "^4.2.6",
     "@types/node": "^25.9.1",
     "eslint": "^10.4.1",
     "globals": "^17.6.0",

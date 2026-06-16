@@ -1,4 +1,4 @@
-import Mustache from 'mustache';
+import { render } from '@se-oss/template';
 import { z } from 'zod';
 
 import { ZodRequestError } from '@/error';
@@ -123,7 +123,7 @@ export function generateRequest<ZSchema extends RequestSchema, ZMethod extends R
     const href = decodeURI(_url.toString());
 
     // Use mustache to parse the path.
-    _url = toURL(Mustache.render(href, pathData));
+    _url = toURL(render(href, pathData));
   }
 
   ////
