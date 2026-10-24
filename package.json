@@ -67,7 +67,7 @@
   "peerDependencies": {
     "zod": "^3.0.0 || ^4.0.0-0"
   },
-  "packageManager": "pnpm@10.34.1+sha512.b58fbde6dca66a929538021581f648b4570b6ca19b18e7cbd7f2c07a7b24454155388dacdf08f2af3678e88a6d1fe04f9d609df24bf51735a060ea041b374ab7",
+  "packageManager": "pnpm@10.34.8+sha512.f627a8e971343afe49dfd0f63d028234201dfa831d5cb588733e1e5f8db26bf16989a32161ab5c1b4db3b1fdbc373160606b5b89e002df6dd19a85adf91fc5a8",
   "publishConfig": {
     "access": "public",
     "provenance": true
